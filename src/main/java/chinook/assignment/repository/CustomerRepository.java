@@ -13,4 +13,9 @@ public interface CustomerRepository extends CrudRepository<Customer, Integer> {
      * @return record containing the country and the number of customers
      */
     CustomerCountry findCountryWithMostCustomers();
+    /**
+     * Returns the id and total amount spent of the highest spending customer.
+     * @return record containing the id and the amount spent
+     */
+    CustomerSpender findHighestSpendingCustomer();
 }

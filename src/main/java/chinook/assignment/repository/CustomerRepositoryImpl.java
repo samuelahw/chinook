@@ -85,4 +85,35 @@ public class CustomerRepositoryImpl implements CustomerRepository{
 
         return customerCountry;
     }
+
+    @Override
+    public CustomerSpender findHighestSpendingCustomer() {
+        String sql = "SELECT customer_id, SUM(total)\n" +
+                "FROM invoice  GROUP BY customer_id\n" +
+                "HAVING SUM (total)=( \n" +
+                "SELECT MAX(mysum) \n" +
+                "FROM ( \n" +
+                "SELECT customer_id, SUM(total) mysum\n" +
+                "FROM invoice \n" +
+                "GROUP BY customer_id) as der)";
+        CustomerSpender customerSpender = new CustomerSpender(0,0);
+
+        try(Connection conn = DriverManager.getConnection(url, username,password)) {
+            // Write statement
+            PreparedStatement statement = conn.prepareStatement(sql);
+            // Execute statement
+            ResultSet result = statement.executeQuery();
+            // Handle result
+            if(result.next()) {
+                customerSpender = new CustomerSpender(
+                        result.getInt("customer_id"),
+                        result.getDouble("sum")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return customerSpender;
+    }
 }
