@@ -58,13 +58,10 @@ public class CustomerRepositoryImpl implements CustomerRepository{
     @Override
     public CustomerCountry findCountryWithMostCustomers() {
         String sql = "SELECT country, COUNT(country) " +
-                    "FROM customer  GROUP BY country " +
-                    "HAVING COUNT (country)=( " +
-                    "SELECT MAX(mycount) " +
-                    "FROM ( " +
-                    "SELECT country, COUNT(country) mycount " +
-                    "FROM customer " +
-                    "GROUP BY country) as der)";
+                "FROM customer " +
+                "GROUP BY country " +
+                "ORDER BY COUNT(country) DESC " +
+                "LIMIT 1;";
         CustomerCountry customerCountry=new CustomerCountry("",0);
 
         try(Connection conn = DriverManager.getConnection(url, username,password)) {
