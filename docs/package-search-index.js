@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"chinook.assignment"},{"l":"chinook.assignment.models"},{"l":"chinook.assignment.repositories"}];updateSearchResults();
