@@ -1,6 +1,4 @@
--- Table: public.superhero_power
-
--- DROP TABLE IF EXISTS public.superhero_power;
+DROP TABLE IF EXISTS public.superhero_power;
 
 CREATE TABLE IF NOT EXISTS public.superhero_power
 (
@@ -16,8 +14,3 @@ CREATE TABLE IF NOT EXISTS public.superhero_power
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS public.superhero_power
-    OWNER to postgres;
