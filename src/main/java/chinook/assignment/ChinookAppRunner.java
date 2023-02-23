@@ -1,6 +1,6 @@
 package chinook.assignment;
 
-import chinook.assignment.repository.CustomerRepositoryImpl;
+import chinook.assignment.repositories.CustomerRepositoryImpl;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -16,6 +16,8 @@ public class ChinookAppRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-
+        System.out.println(customerRepository.findCountryWithMostCustomers());
+        System.out.println(customerRepository.findHighestSpendingCustomer());
+        System.out.println(customerRepository.findMostPopularGenres(11));
     }
 }

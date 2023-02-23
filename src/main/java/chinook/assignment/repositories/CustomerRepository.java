@@ -1,4 +1,4 @@
-package chinook.assignment.repository;
+package chinook.assignment.repositories;
 
 import chinook.assignment.models.Customer;
 import chinook.assignment.models.CustomerCountry;
