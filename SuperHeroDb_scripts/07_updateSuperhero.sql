@@ -1,3 +1,3 @@
-UPDATE public.superhero
-	SET name='Hulk'
-	WHERE id = 1;
+UPDATE superhero
+SET alias = 'Hulk'
+WHERE id = 1;

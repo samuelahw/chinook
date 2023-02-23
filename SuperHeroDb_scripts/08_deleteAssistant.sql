@@ -1,2 +1,2 @@
-DELETE FROM public.assistant
-	WHERE name = 'Batman assistant';
+DELETE FROM assistant
+WHERE name = 'Batman assistant';
