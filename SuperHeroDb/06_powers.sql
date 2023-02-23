@@ -4,11 +4,11 @@ INSERT INTO public.power(
 
 INSERT INTO public.power(
 	name, description)
-	VALUES ('Frost Ball', 'Shoots icy frost ball');
+	VALUES ('Frost lance', 'Shoots icy lance');
 
 INSERT INTO public.power(
 	name, description)
-	VALUES ('Thunder Ball', 'Shoots thunder ball');
+	VALUES ('Invisible', 'Hero can go invisible');
 
 INSERT INTO public.power(
 	name, description)
