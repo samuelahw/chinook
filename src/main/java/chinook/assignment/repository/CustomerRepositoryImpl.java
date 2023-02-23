@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class CustomerRepositoryImpl implements CustomerRepository{
-
     private final String url;
     private final String username;
     private final String password;
@@ -57,22 +57,19 @@ public class CustomerRepositoryImpl implements CustomerRepository{
 
     @Override
     public CustomerCountry findCountryWithMostCustomers() {
-        String sql = "SELECT country, COUNT(country) \n" +
-                "FROM customer  GROUP BY country \n" +
-                    "HAVING COUNT (country)=( \n" +
-                    "SELECT MAX(mycount) \n" +
-                    "FROM ( \n" +
-                    "SELECT country, COUNT(country) mycount \n" +
-                    "FROM customer \n" +
+        String sql = "SELECT country, COUNT(country) " +
+                    "FROM customer  GROUP BY country " +
+                    "HAVING COUNT (country)=( " +
+                    "SELECT MAX(mycount) " +
+                    "FROM ( " +
+                    "SELECT country, COUNT(country) mycount " +
+                    "FROM customer " +
                     "GROUP BY country) as der)";
         CustomerCountry customerCountry=new CustomerCountry("",0);
 
         try(Connection conn = DriverManager.getConnection(url, username,password)) {
-            // Write statement
             PreparedStatement statement = conn.prepareStatement(sql);
-            // Execute statement
             ResultSet result = statement.executeQuery();
-            // Handle result
             if(result.next()) {
                 customerCountry = new CustomerCountry(
                         result.getString("country"),
@@ -88,26 +85,26 @@ public class CustomerRepositoryImpl implements CustomerRepository{
 
     @Override
     public CustomerSpender findHighestSpendingCustomer() {
-        String sql = "SELECT customer_id, SUM(total)\n" +
-                "FROM invoice  GROUP BY customer_id\n" +
-                "HAVING SUM (total)=( \n" +
-                "SELECT MAX(mysum) \n" +
-                "FROM ( \n" +
-                "SELECT customer_id, SUM(total) mysum\n" +
-                "FROM invoice \n" +
-                "GROUP BY customer_id) as der)";
-        CustomerSpender customerSpender = new CustomerSpender(0,0);
+        String sql = "SELECT customer.customer_id, first_name, last_name, COUNT(total) AS transactions, SUM(total) AS total "+
+        "FROM customer "+
+        "INNER JOIN invoice "+
+        "ON customer.customer_id = invoice.customer_id "+
+        "GROUP BY customer.customer_id "+
+        "ORDER BY total DESC "+
+        "LIMIT 1";
+        CustomerSpender customerSpender = null;
 
         try(Connection conn = DriverManager.getConnection(url, username,password)) {
-            // Write statement
             PreparedStatement statement = conn.prepareStatement(sql);
-            // Execute statement
             ResultSet result = statement.executeQuery();
-            // Handle result
+
             if(result.next()) {
                 customerSpender = new CustomerSpender(
                         result.getInt("customer_id"),
-                        result.getDouble("sum")
+                        result.getString("first_name"),
+                        result.getString("last_name"),
+                        result.getInt("transactions"),
+                        result.getDouble("total")
                 );
             }
         } catch (SQLException e) {
@@ -115,5 +112,48 @@ public class CustomerRepositoryImpl implements CustomerRepository{
         }
 
         return customerSpender;
+    }
+
+    @Override
+    public CustomerGenre findMostPopularGenres(Integer customerIdParam) {
+        String sql = "SELECT COUNT(track.genre_id) track_count, genre.name genre_name, customer.customer_id, first_name, last_name "+
+        "FROM track "+
+        "INNER JOIN genre ON track.genre_id = genre.genre_id "+
+        "INNER JOIN invoice_line ON track.track_id = invoice_line.track_id "+
+        "INNER JOIN invoice ON invoice_line.invoice_id = invoice.invoice_id "+
+        "INNER JOIN customer ON invoice.customer_id = customer.customer_id "+
+        "WHERE customer.customer_id = ? "+
+        "GROUP BY customer.customer_id, genre.name "+
+        "ORDER BY COUNT(track.genre_id) DESC "+
+        "LIMIT 3";
+
+        Integer trackCount = null;
+        List<String> genreNames = new ArrayList<>();
+        int customerId = 0;
+        String firstName = "";
+        String lastName = "";
+
+        try(Connection conn = DriverManager.getConnection(url, username,password)) {
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, customerIdParam);
+            ResultSet result = statement.executeQuery();
+
+            while(result.next()) {
+                if(trackCount==null){
+                    customerId = result.getInt("customer_id");
+                    firstName = result.getString("first_name");
+                    lastName = result.getString("last_name");
+                    trackCount = result.getInt("track_count");
+                    genreNames.add(result.getString("genre_name"));
+                ;}
+                else if(result.getInt("track_count")==trackCount){
+                    genreNames.add(result.getString("genre_name"));
+                }
+                else break;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new CustomerGenre(customerId,firstName,lastName,trackCount,genreNames);
     }
 }
